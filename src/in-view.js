@@ -51,7 +51,9 @@ const inView = () => {
     * which checks each registry.
     */
     triggers.forEach(event =>
-        addEventListener(event, check));
+        addEventListener(event, check, {
+            passive: true
+        }));
 
     /**
     * If supported, use MutationObserver to watch the
