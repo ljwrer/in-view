@@ -1,6 +1,7 @@
 import Registry from './registry';
 import { inViewport } from './viewport';
 import { throttle } from 'lodash';
+import domLoaded from './domLoaded'
 
 /**
 * Create and return the inView function.
@@ -37,6 +38,15 @@ const inView = () => {
     }, interval);
 
     /**
+     * @description if dom has mutation, update selector
+     */
+    const updateSelector = throttle(() => {
+        selectors.history.forEach(selector => {
+            control(selector)
+        });
+    }, interval);
+
+    /**
     * For each trigger event on window, add a listener
     * which checks each registry.
     */
@@ -48,10 +58,13 @@ const inView = () => {
     * DOM and run checks on mutation.
     */
     if (window.MutationObserver) {
-        addEventListener('DOMContentLoaded', () => {
-            new MutationObserver(check)
-                .observe(document.body, { attributes: true, childList: true, subtree: true });
-        });
+        domLoaded(() => {
+            new MutationObserver(() => {
+                updateSelector()
+                check()
+            })
+              .observe(document.body, { attributes: true, childList: true, subtree: true });
+        })
     }
 
     /**
